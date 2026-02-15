@@ -84,24 +84,20 @@ def bayesian_optimisation_nd(X, Y, func_id, n_iterations=10, acquisition='ucb'):
         ## Obtain Y_next
         path = PROCESSED_DATA_DIR / 'week_1' / 'outputs.txt'
         Y_next = load_evaluation_data(path)[func_id - 1]
-        # print(f'Y_next: {Y_next}')
 
         # Update
         X_samples = np.vstack([X, X_next])
-        # print(f'X_samples: {X_samples}')
+        print(f'X_samples: {X_samples}')
 
         Y_samples = np.append(Y, Y_next)
-        # print(f'Y_samples: {Y_samples}')
+        print(f'Y_samples: {Y_samples}')
 
         best_values.append(Y_samples.max())
-        # print(best_values)
+        print(best_values)
     
     return X, Y, best_values, X_next
 
-
-
 # ------
-
 """
 Run Bayesian Optimisation Challenge 
 """
@@ -119,7 +115,6 @@ dataset = {
     for i in range(1, NUMBER_OF_FUNCTIONS + 1)
 }
 
-
 cycle_parameters = {
     1: {
         "n_iterations": 1,
@@ -127,11 +122,18 @@ cycle_parameters = {
             "strategy": "ucb",
             "params": { "kappa": 2.0 }
         }
+    },
+    2: {
+        "n_iterations": 1,
+        "acquisition": { 
+            "strategy": "ucb",
+            "params": { "kappa": 20.0 }
+        }
     }
 }
 
 optimal_cycle_values = []
-    
+
 for func_id, data in dataset.items():
     print(f'Function {func_id}')
     
@@ -165,21 +167,18 @@ for func_id, data in dataset.items():
                 print(x)
                 print(y)
 
+
                 n_iter = cycle_parameters[cycle]['n_iterations']
                 acq_stra = cycle_parameters[cycle]['acquisition']['strategy']
 
                 _, _, _, opt_cyc_vals = bayesian_optimisation_nd(x, y, func_id, n_iterations=n_iter, acquisition=acq_stra)
                 print(f'Appending next vlaues to cycle: {opt_cyc_vals}')
                 optimal_cycle_values.append(opt_cyc_vals)
-
-                # print next cycle values
             else:
                 print(f'No prior inputs for week_{prev_week}.')
         else:
             print(f'No previous week to load (cycle {prev_week})')
         print('\n') 
-
-# breakpoint()
 
 def print_cycle_values(optimal_cycle_values):
     for arr in optimal_cycle_values:
@@ -193,7 +192,6 @@ def print_cycle_values(optimal_cycle_values):
         print("-".join(formatted))
 
 print_cycle_values(optimal_cycle_values)
-    
 
 print('--------')
 print(f'Time elapsed: {time.time() - start}secs')
