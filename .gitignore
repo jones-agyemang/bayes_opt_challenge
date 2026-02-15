@@ -1,1 +1,3 @@
 *.pyc
+bo_challenge_oop_experimental.py
+utils/__pycache__/*
