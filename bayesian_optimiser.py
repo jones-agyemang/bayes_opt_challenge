@@ -26,6 +26,26 @@ load_input = lambda x, type: np.load(f'./initial_data/function_{x}/initial_{type
 def upper_confidence_bound(mu, sigma, kappa):
     return mu + sigma * kappa
 
+def expected_improvement(mu, sigma, y_best, xi=0.01):
+    """
+    Expected Improvement (EI) acquisition function.
+
+    EI = E[max(f(x) - f(x_best), 0)]
+
+    Parameters:
+    -----------
+    mu : predicted mean
+    sigma : predicted standard deviation
+    y_best : best observed value so far
+    xi : exploration parameter
+    """
+    with np.errstate(divide='warn'):
+        improvement = mu - y_best - xi
+        Z = improvement / sigma
+        ei = improvement * norm.cdf(Z) + sigma * norm.pdf(Z)
+        ei[sigma == 0.0] = 0.0
+    return ei
+
 """
 Aim: acquisition function to be used for optimisation
 """
