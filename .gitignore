@@ -1,3 +1,13 @@
-*.pyc
-bo_challenge_oop_experimental.py
-utils/__pycache__/*
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
