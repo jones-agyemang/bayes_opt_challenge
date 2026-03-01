@@ -14,6 +14,7 @@ from utils.loader import (
 )
 
 from core import (
+    fit_gp,
     bayesian_optimisation_nd
 )
 
@@ -83,7 +84,8 @@ for func_id, data in dataset.items():
     acq_stra = cycle_parameters[cycle]['acquisition']['strategy']
     print(f'Acqusition strategy: {acq_stra}')
 
-    _, _, _, opt_cyc_vals = bayesian_optimisation_nd(X, Y, func_id, acquisition=acq_stra)
+    gp = fit_gp(X, Y)
+    _, _, _, opt_cyc_vals = bayesian_optimisation_nd(X, Y, gp, func_id, acquisition=acq_stra)
     optimal_cycle_values.append(opt_cyc_vals)
 
 def print_cycle_values(optimal_cycle_values):

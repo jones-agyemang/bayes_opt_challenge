@@ -60,7 +60,14 @@ def acq_objective(x, gp, acquisition_strategy, y_best):
     # We minimise, so return the negative acquisition
     return float(-acquisition_value[0])
 
-def bayesian_optimisation_nd(X, Y, func_id, acquisition='ucb'):
+def fit_gp(X, y):
+    kernel = ConstantKernel(1.0) * RBF(length_scale=DEFAULT_LEN_SCALE)
+    gp = GaussianProcessRegressor(kernel=kernel, alpha=1e-6, n_restarts_optimizer=10)
+
+    gp.fit(X, y)
+    return gp
+
+def bayesian_optimisation_nd(X, Y, gp, func_id, acquisition='ucb'):
     # set bounds
     _, n_dims = X.shape
     bounds = [(0.000001, 0.999999) for _ in range(n_dims)]
@@ -69,11 +76,6 @@ def bayesian_optimisation_nd(X, Y, func_id, acquisition='ucb'):
 
     # Normalise acquisition string once so we don't reference an undefined name
     acquisition_strategy = acquisition.lower()
-
-    kernel = ConstantKernel(1.0) * RBF(length_scale=DEFAULT_LEN_SCALE)
-    gp = GaussianProcessRegressor(kernel=kernel, alpha=1e-6, n_restarts_optimizer=10)
-
-    gp.fit(X, Y)
 
     # Optimise acquisition function (multi-start)
     best_acq = np.inf
