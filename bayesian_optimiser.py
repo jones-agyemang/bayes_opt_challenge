@@ -15,7 +15,7 @@ from utils.loader import (
 
 from core import (
     fit_gp,
-    bayesian_optimisation_nd
+    propose_next
 )
 
 from log_eval_plts import (signed_log_plot)
@@ -41,14 +41,12 @@ dataset = {
 
 cycle_parameters = {
     1: {
-        "n_iterations": 1,
         "acquisition": { 
             "strategy": "ucb",
             "params": { "kappa": 2.0 }
         }
     },
     2: {
-        "n_iterations": 1,
         "acquisition": { 
             "strategy": "ucb",
             "params": { "kappa": 20.0 }
@@ -63,7 +61,7 @@ cycle_parameters = {
 }
 
 optimal_cycle_values = []
-plot_evaluations = True
+plot_evaluations = False
 
 cycle = 3
 for func_id, data in dataset.items():
@@ -85,7 +83,8 @@ for func_id, data in dataset.items():
     print(f'Acqusition strategy: {acq_stra}')
 
     gp = fit_gp(X, Y)
-    _, _, _, opt_cyc_vals = bayesian_optimisation_nd(X, Y, gp, func_id, acquisition=acq_stra)
+    _, n_dims = X.shape
+    _, _, opt_cyc_vals = propose_next(gp, X, Y, func_id, acquisition=acq_stra)
     optimal_cycle_values.append(opt_cyc_vals)
 
 def print_cycle_values(optimal_cycle_values):
