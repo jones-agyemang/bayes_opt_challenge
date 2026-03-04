@@ -15,7 +15,8 @@ from utils.loader import (
 
 from core import (
     fit_gp,
-    propose_next
+    propose_next,
+    propose_next_rnd_sampling
 )
 
 from log_eval_plts import (signed_log_plot)
@@ -57,13 +58,20 @@ cycle_parameters = {
             "strategy": "ei",
             "params": {}
         }
-    }
+    },
+    4: {
+        "acquisition": {
+            "strategy": "ei",
+            "params": {}
+        }
+    },
 }
 
 optimal_cycle_values = []
+optimal_cycle_values_rnd = []
 plot_evaluations = False
 
-cycle = 3
+cycle = 4
 for func_id, data in dataset.items():
     print(f'Function: {func_id}')
     print(f'Buiding a surrogate model with the following input and output priors')
@@ -83,9 +91,13 @@ for func_id, data in dataset.items():
     print(f'Acqusition strategy: {acq_stra}')
 
     gp = fit_gp(X, Y)
-    _, n_dims = X.shape
     _, _, opt_cyc_vals = propose_next(gp, X, Y, func_id, acquisition=acq_stra)
+    seed = (cycle * NUMBER_OF_FUNCTIONS) + func_id
+    opt_cyc_vals_rnd = propose_next_rnd_sampling(
+        gp, X, Y, func_id, acquisition=acq_stra, seed=seed
+    )
     optimal_cycle_values.append(opt_cyc_vals)
+    optimal_cycle_values_rnd.append(opt_cyc_vals_rnd)
 
 def print_cycle_values(optimal_cycle_values):
     for arr in optimal_cycle_values:
@@ -94,6 +106,7 @@ def print_cycle_values(optimal_cycle_values):
         print("-".join(formatted))
 
 print_cycle_values(optimal_cycle_values)
+print_cycle_values(optimal_cycle_values_rnd)
 
 print('--------')
 print(f'Time elapsed: {time.time() - start}secs')

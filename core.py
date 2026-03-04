@@ -44,8 +44,8 @@ def expected_improvement(mu, sigma, y_best, xi=0.01):
     return ei
 
 
-def acq_objective(x, gp, acquisition_strategy, y_best):
-    # `minimize` passes a 1D array of parameters; convert to 2D for GP
+def evaluate_acquisition(x, gp, acquisition_strategy, y_best):
+    # Accept a single candidate or a candidate matrix.
     x = np.atleast_2d(x)
     mu, sigma = gp.predict(x, return_std=True)
 
@@ -57,6 +57,13 @@ def acq_objective(x, gp, acquisition_strategy, y_best):
         case _:
             raise ValueError(f"Unsupported acquisition strategy: {acquisition_strategy}")
 
+    return acquisition_value
+
+
+def acq_objective(x, gp, acquisition_strategy, y_best):
+    # `minimize` requires a scalar objective.
+    acquisition_value = evaluate_acquisition(x, gp, acquisition_strategy, y_best)
+
     # We minimise, so return the negative acquisition
     return float(-acquisition_value[0])
 
@@ -66,7 +73,10 @@ def fit_gp(X, y):
     gp.fit(X, y)
     return gp
 
-def propose_next(gp, X, Y, func_id, acquisition='ucb'):
+def propose_next(
+    gp, X, Y, 
+    func_id, 
+    acquisition='ucb'):
     # set bounds
     _, n_dims = X.shape
     bounds = [(0.000001, 0.999999) for _ in range(n_dims)]
@@ -77,6 +87,7 @@ def propose_next(gp, X, Y, func_id, acquisition='ucb'):
     # Optimise acquisition function (multi-start)
     best_acq = np.inf
     X_next = None
+
     # optimise to obtain next best random input variable
     for _ in range(10):
         x0 = np.random.uniform([b[0] for b in bounds], [b[1] for b in bounds])
@@ -93,3 +104,19 @@ def propose_next(gp, X, Y, func_id, acquisition='ucb'):
             X_next = np.round(result.x, 6)
 
     return X, Y, X_next
+
+def propose_next_rnd_sampling(
+    gp, X, Y,
+    func_id,
+    n_candidates = 50_000, acquisition='ucb', seed=0):
+    rng = np.random.default_rng(seed)
+    _, n_dims = X.shape
+
+    X_cand = rng.uniform(0., 1., size=(n_candidates, n_dims))
+
+    y_best = Y.max()
+    acq = evaluate_acquisition(X_cand, gp, acquisition.lower(), y_best)
+
+    best_idx = int(np.argmax(acq))
+    return X_cand[best_idx]
+
