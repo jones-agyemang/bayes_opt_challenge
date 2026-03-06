@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bayesian Optimisation Reviewer"
+  short_description: "Review BO math and implementation rigor"
+  default_prompt: "Use $review-bayesian-optimisation to review this Bayesian optimisation change for objective consistency, acquisition correctness, and GP numerical stability."
