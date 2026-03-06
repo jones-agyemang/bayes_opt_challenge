@@ -118,5 +118,5 @@ def propose_next_rnd_sampling(
     acq = evaluate_acquisition(X_cand, gp, acquisition.lower(), y_best)
 
     best_idx = int(np.argmax(acq))
-    return X_cand[best_idx]
+    return X, Y, X_cand[best_idx]
 
