@@ -12,6 +12,8 @@ from utils.loader import (
     load_output_data
 )
 
+from utils.cycle_parameters import ( get_cycle_parameters )
+
 from core import (
     fit_gp,
     propose_next,
@@ -22,8 +24,6 @@ from log_eval_plts import (signed_log_plot)
 
 # CONSTANTS
 DEFAULT_LEN_SCALE = 0.3
-PROPOSE_NEXT     = "propose_next"
-PROPOSE_NEXT_RND = "propose_next_rnd_sampling"
 
 """
 Run Bayesian Optimisation Challenge 
@@ -41,100 +41,12 @@ dataset = {
     for i in range(1, NUMBER_OF_FUNCTIONS + 1)
 }
 
-cycle_parameters = {
-    1: {
-        "acquisition": { 
-            "strategy": "ucb",
-            "params": { "kappa": 2.0 }
-        },
-        "proposer": PROPOSE_NEXT,
-    },
-    2: {
-        "acquisition": { 
-            "strategy": "ucb",
-            "params": { "kappa": 20.0 }
-        },
-        "proposer": PROPOSE_NEXT,
-    },
-    3: {
-        "acquisition": {
-            "strategy": "ei",
-            "params": {}
-        },
-        "proposer": PROPOSE_NEXT,
-    },
-    4: {
-        "acquisition": {
-            "strategy": "ei",
-            "params": {}
-        },
-        "proposer": PROPOSE_NEXT,
-    },
-    5: {
-        "function_1": {
-            "acquisition": {
-                "strategy": "ei",
-                "params": {} # TODO: Implement `xi`
-            },
-            "proposer": PROPOSE_NEXT_RND
-        },
-        "function_2": {
-            "acquisition": {
-                "strategy": "ei",
-                "params": {}
-            },
-            "proposer": PROPOSE_NEXT_RND
-        },
-        "function_3": {
-            "acquisition": {
-                "strategy": "ei",
-                "params": {}
-            },
-            "proposer": PROPOSE_NEXT_RND
-        },
-        "function_4": {
-            "acquisition": {
-                "strategy": "ei",
-                "params": {}
-            },
-            "proposer": PROPOSE_NEXT
-        },
-        "function_5": {
-            "acquisition": {
-                "strategy": "ei",
-                "params": {}
-            },
-            "proposer": PROPOSE_NEXT
-        },
-        "function_6": {
-            "acquisition": {
-                "strategy": "ei",
-                "params": {}
-            },
-            "proposer": PROPOSE_NEXT
-        },
-        "function_7": {
-            "acquisition": {
-                "strategy": "ei",
-                "params": {}
-            },
-            "proposer": PROPOSE_NEXT
-        },
-        "function_8": {
-            "acquisition": {
-                "strategy": "ei",
-                "params": {}
-            },
-            "proposer": PROPOSE_NEXT
-        },
-    }
-}
-
+cycle_parameters = get_cycle_parameters()
 optimal_cycle_values = []
 optimal_cycle_values_rnd = []
 plot_evaluations = True
 
-cycle = 5
+cycle = 2
 DEFAULT_PROPOSER = 'propose_next'
 
 def bayesian_loop():

@@ -5,7 +5,6 @@ Adjustments Log
   - Currently using a gradient-based minimizer with 10 multi-starts. Switching to randomly sampling sampling a larger space and submitting the best candidate after evaluating all `n` candidate. This change ensures that the GP generates `n` number of possible candidates(`X_next`) in the given search space $[0, 1]^d$. The acquisition point is evaluated at the generated candidate points, with the highest acquisition value being chosen as the final value
   This is computationally intensive but, it should help to reach our maximisation goal faster. 
 
-# Week 6
 ## Function 1
 <img src="./evaluations/signed_log_outputs_1.png" alt="Function1-perf_graph" width="50%" height="50%">
 
@@ -29,3 +28,8 @@ Adjustments Log
 
 ## Function 8
 <img src="./evaluations/signed_log_outputs_8.png" alt="Function8-perf_graph" width="50%" height="50%">
+
+# Week 6
+Adjustment Log
+- introduced function-specific acquisition hyperparameter tuning. 
+- dedicating this cycle to addressing the lack of use of acquisition hyperparameter usage to obtain proposed input values. I'm addressing this change as prescribed in a previous sentence. This is problematic; it means we have been using values with limited exploration search space. Hopefully this cycle should address that and give us a much better understanding of which regions are profitable and which regions are not worth exploring. After that, we can dive deeper into exploitation. 
