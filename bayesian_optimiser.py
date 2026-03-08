@@ -1,7 +1,6 @@
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel
-from scipy.optimize import minimize
 
 import time
 
@@ -159,23 +158,23 @@ def bayesian_loop():
 
         # Run acquisition based on proposer type
         cycle_cfg = cycle_parameters.get(cycle, {})
-        function_cfg = cycle_cfg.get(f"function_{func_id}", cycle_cfg)
+        function_cfg = cycle_cfg.get(f"function_{func_id}", {})
         acquisition_cfg = function_cfg.get('acquisition', {})
-        acq_stra = acquisition_cfg.get('strategy', '')
-        print(f'Acqusition strategy: {acq_stra}')
         proposer = function_cfg.get("proposer", DEFAULT_PROPOSER)
         print(f"Proposer: {proposer}")
 
         match proposer:
             case "propose_next":
                 # Use Gradient method for acquiring optimal next proposal
-                _, _, opt_cyc_vals = propose_next(gp, X, Y, func_id, acquisition=acq_stra)
+                _, _, opt_cyc_vals = propose_next(
+                    gp, X, Y, func_id, acquisition_cfg
+                )
                 optimal_cycle_values.append(opt_cyc_vals)
             case "propose_next_rnd_sampling":
                 # Use heuristics for acquiring best next sample
                 seed = (cycle * NUMBER_OF_FUNCTIONS) + func_id
                 _, _, opt_cyc_vals_rnd = propose_next_rnd_sampling(
-                    gp, X, Y, func_id, acquisition=acq_stra, seed=seed
+                    gp, X, Y, func_id, acquisition_cfg, seed=seed
                 )
                 optimal_cycle_values_rnd.append(opt_cyc_vals_rnd)
             case _:

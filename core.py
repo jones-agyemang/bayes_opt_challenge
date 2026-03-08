@@ -12,6 +12,9 @@ warnings.filterwarnings('ignore')
 
 # CONSTANTS
 DEFAULT_LEN_SCALE = 0.3
+DEFAULT_ACQUISITION_STRATEGY = "ucb"
+DEFAULT_XI = 0.01
+DEFAULT_KAPPA = 2
 
 # Resolve paths relative to this file so the script works from any CWD
 BASE_DIR = Path(__file__).resolve().parent
@@ -23,7 +26,7 @@ def upper_confidence_bound(mu, sigma, kappa):
     return mu + sigma * kappa
 
 # EI for Maximisation
-def expected_improvement(mu, sigma, y_best, xi=0.01):
+def expected_improvement(mu, sigma, y_best, xi):
     """
     Expected Improvement (EI) acquisition function.
 
@@ -44,25 +47,30 @@ def expected_improvement(mu, sigma, y_best, xi=0.01):
     return ei
 
 
-def evaluate_acquisition(x, gp, acquisition_strategy, y_best):
+def evaluate_acquisition(x, gp, acq_dict, y_best):
     # Accept a single candidate or a candidate matrix.
     x = np.atleast_2d(x)
     mu, sigma = gp.predict(x, return_std=True)
+    
+    # extract acquisition hyperparameters
+    acquisition_strategy = acq_dict.get('strategy', DEFAULT_ACQUISITION_STRATEGY)
+    xi = acq_dict.get('params', {}).get('xi', DEFAULT_XI)
+    kappa = acq_dict.get('params', {}).get('kappa', DEFAULT_KAPPA)
 
     match acquisition_strategy:
         case "ei":
-            acquisition_value = expected_improvement(mu, sigma, y_best)
+            acquisition_value = expected_improvement(mu, sigma, y_best, xi)
         case "ucb":
-            acquisition_value = upper_confidence_bound(mu, sigma, kappa=2)
+            acquisition_value = upper_confidence_bound(mu, sigma, kappa)
         case _:
             raise ValueError(f"Unsupported acquisition strategy: {acquisition_strategy}")
 
     return acquisition_value
 
 
-def acq_objective(x, gp, acquisition_strategy, y_best):
+def acq_objective(x, gp, acq_dict, y_best):
     # `minimize` requires a scalar objective.
-    acquisition_value = evaluate_acquisition(x, gp, acquisition_strategy, y_best)
+    acquisition_value = evaluate_acquisition(x, gp, acq_dict, y_best)
 
     # We minimise, so return the negative acquisition
     return float(-acquisition_value[0])
@@ -76,13 +84,10 @@ def fit_gp(X, y):
 def propose_next(
     gp, X, Y, 
     func_id, 
-    acquisition='ucb'):
+    acquisition_cfg):
     # set bounds
     _, n_dims = X.shape
     bounds = [(0.000001, 0.999999) for _ in range(n_dims)]
-
-    # Normalise acquisition string once so we don't reference an undefined name
-    acquisition_strategy = acquisition.lower()
 
     # Optimise acquisition function (multi-start)
     best_acq = np.inf
@@ -94,7 +99,7 @@ def propose_next(
         result = minimize(
             acq_objective,
             x0,
-            args=(gp, acquisition_strategy, Y.max()),
+            args=(gp, acquisition_cfg, Y.max()),
             bounds=bounds,
             method='L-BFGS-B'
         )
@@ -108,14 +113,16 @@ def propose_next(
 def propose_next_rnd_sampling(
     gp, X, Y,
     func_id,
-    n_candidates = 50_000, acquisition='ucb', seed=0):
+    acquisition_cfg, 
+    n_candidates = 50_000, seed=0):
+
     rng = np.random.default_rng(seed)
     _, n_dims = X.shape
 
     X_cand = rng.uniform(0., 1., size=(n_candidates, n_dims))
 
     y_best = Y.max()
-    acq = evaluate_acquisition(X_cand, gp, acquisition.lower(), y_best)
+    acq = evaluate_acquisition(X_cand, gp, acquisition_cfg, y_best)
 
     best_idx = int(np.argmax(acq))
     return X, Y, X_cand[best_idx]
