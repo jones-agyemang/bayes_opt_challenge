@@ -19,56 +19,56 @@ DYN_CYCLE_PARAMETERS = {
         "function_1": {
             "acquisition": {
                 "strategy": "ei",
-                "params": { "kappa": 25 }
+                "params": { "xi": 25 }
             },
             "proposer": PROPOSE_NEXT_RND
         },
         "function_2": {
             "acquisition": {
                 "strategy": "ei",
-                "params": { "kappa": 25 }
+                "params": { "xi": 25 }
             },
             "proposer": PROPOSE_NEXT_RND
         },
         "function_3": {
             "acquisition": {
                 "strategy": "ei",
-                "params": { "kappa": 25 }
+                "params": { "xi": 25 }
             },
             "proposer": PROPOSE_NEXT_RND
         },
         "function_4": {
             "acquisition": {
                 "strategy": "ei",
-                "params": { "kappa": 25 }
+                "params": { "xi": 25 }
             },
             "proposer": PROPOSE_NEXT
         },
         "function_5": {
             "acquisition": {
                 "strategy": "ei",
-                "params": { "kappa": 25 }
+                "params": { "xi": 25 }
             },
             "proposer": PROPOSE_NEXT
         },
         "function_6": {
             "acquisition": {
                 "strategy": "ei",
-                "params": { "kappa": 25 }
+                "params": { "xi": 25 }
             },
             "proposer": PROPOSE_NEXT
         },
         "function_7": {
             "acquisition": {
                 "strategy": "ei",
-                "params": { "kappa": 25 }
+                "params": { "xi": 25 }
             },
             "proposer": PROPOSE_NEXT
         },
         "function_8": {
             "acquisition": {
                 "strategy": "ei",
-                "params": { "kappa": 25 }
+                "params": { "xi": 25 }
             },
             "proposer": PROPOSE_NEXT
         }

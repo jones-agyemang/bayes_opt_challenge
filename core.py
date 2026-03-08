@@ -50,24 +50,39 @@ def expected_improvement(mu, sigma, y_best, xi):
 
 
 def evaluate_acquisition(x, gp, acq_dict, y_best):
+    if not isinstance(acq_dict, dict):
+        raise TypeError("`acq_dict` must be a dict containing `strategy` and `params`.")
+
     # Accept a single candidate or a candidate matrix.
-    x = np.atleast_2d(x)
+    x = np.atleast_2d(np.asarray(x, dtype=float))
     mu, sigma = gp.predict(x, return_std=True)
-    
-    # extract acquisition hyperparameters
-    acquisition_strategy = acq_dict.get('strategy', DEFAULT_ACQUISITION_STRATEGY)
-    xi = acq_dict.get('params', {}).get('xi', DEFAULT_XI)
-    kappa = acq_dict.get('params', {}).get('kappa', DEFAULT_KAPPA)
 
-    match acquisition_strategy:
+    strategy = acq_dict.get("strategy")
+    if not isinstance(strategy, str) or not strategy.strip():
+        raise ValueError("Missing/invalid required parameter: `strategy`.")
+    strategy = strategy.lower()
+
+    params = acq_dict.get("params") or {}
+    if not isinstance(params, dict):
+        raise TypeError("`acq_dict['params']` must be a dict.")
+
+    match strategy:
         case "ei":
-            acquisition_value = expected_improvement(mu, sigma, y_best, xi)
+            xi = params.get("xi")
+            if xi is None:
+                raise ValueError(
+                    "Missing required parameter: `params.xi` for strategy `ei`."
+                )
+            return expected_improvement(mu, sigma, y_best, xi)
         case "ucb":
-            acquisition_value = upper_confidence_bound(mu, sigma, kappa)
+            kappa = params.get("kappa")
+            if kappa is None:
+                raise ValueError(
+                    "Missing required parameter: `params.kappa` for strategy `ucb`."
+                )
+            return upper_confidence_bound(mu, sigma, kappa)
         case _:
-            raise ValueError(f"Unsupported acquisition strategy: {acquisition_strategy}")
-
-    return acquisition_value
+            raise ValueError(f"Unsupported acquisition strategy: {strategy}")
 
 
 def acq_objective(x, gp, acq_dict, y_best):
