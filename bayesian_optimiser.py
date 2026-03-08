@@ -72,11 +72,62 @@ cycle_parameters = {
         "proposer": PROPOSE_NEXT,
     },
     5: {
-        "acquisition": {
-            "strategy": "ei",
-            "params": {}
+        "function_1": {
+            "acquisition": {
+                "strategy": "ei",
+                "params": {} # TODO: Implement `xi`
+            },
+            "proposer": PROPOSE_NEXT_RND
         },
-        "proposer": PROPOSE_NEXT_RND
+        "function_2": {
+            "acquisition": {
+                "strategy": "ei",
+                "params": {}
+            },
+            "proposer": PROPOSE_NEXT_RND
+        },
+        "function_3": {
+            "acquisition": {
+                "strategy": "ei",
+                "params": {}
+            },
+            "proposer": PROPOSE_NEXT_RND
+        },
+        "function_4": {
+            "acquisition": {
+                "strategy": "ei",
+                "params": {}
+            },
+            "proposer": PROPOSE_NEXT
+        },
+        "function_5": {
+            "acquisition": {
+                "strategy": "ei",
+                "params": {}
+            },
+            "proposer": PROPOSE_NEXT
+        },
+        "function_6": {
+            "acquisition": {
+                "strategy": "ei",
+                "params": {}
+            },
+            "proposer": PROPOSE_NEXT
+        },
+        "function_7": {
+            "acquisition": {
+                "strategy": "ei",
+                "params": {}
+            },
+            "proposer": PROPOSE_NEXT
+        },
+        "function_8": {
+            "acquisition": {
+                "strategy": "ei",
+                "params": {}
+            },
+            "proposer": PROPOSE_NEXT
+        },
     }
 }
 
@@ -103,19 +154,19 @@ def bayesian_loop():
             signed_log_plot(func_id, Y)
         assert X.shape[0], Y.shape
         
-        # Acquisition
-        acq_stra = cycle_parameters[cycle]['acquisition']['strategy']
-        print(f'Acqusition strategy: {acq_stra}')
-
         # train GP with prior data
         gp = fit_gp(X, Y)
 
         # Run acquisition based on proposer type
-        proposer = cycle_parameters.get(cycle, {}).get("proposer", DEFAULT_PROPOSER)
+        cycle_cfg = cycle_parameters.get(cycle, {})
+        function_cfg = cycle_cfg.get(f"function_{func_id}", {})
+        acquisition_cfg = function_cfg.get('acquisition', {})
+        acq_stra = acquisition_cfg.get('strategy', '')
+        print(f'Acqusition strategy: {acq_stra}')
+        proposer = function_cfg.get("proposer", DEFAULT_PROPOSER)
         print(f"Proposer: {proposer}")
 
         match proposer:
-            # case PROPOSE_NEXT:
             case "propose_next":
                 # Use Gradient method for acquiring optimal next proposal
                 _, _, opt_cyc_vals = propose_next(gp, X, Y, func_id, acquisition=acq_stra)
