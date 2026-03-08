@@ -43,10 +43,9 @@ dataset = {
 
 cycle_parameters = get_cycle_parameters()
 optimal_cycle_values = []
-optimal_cycle_values_rnd = []
 plot_evaluations = True
 
-cycle = 2
+cycle = 6
 DEFAULT_PROPOSER = 'propose_next'
 
 def bayesian_loop():
@@ -88,7 +87,7 @@ def bayesian_loop():
                 _, _, opt_cyc_vals_rnd = propose_next_rnd_sampling(
                     gp, X, Y, func_id, acquisition_cfg, seed=seed
                 )
-                optimal_cycle_values_rnd.append(opt_cyc_vals_rnd)
+                optimal_cycle_values.append(opt_cyc_vals_rnd)
             case _:
                 raise ValueError(f"Unsupported proposer: {proposer}")
 
@@ -101,7 +100,6 @@ def print_cycle_values(optimal_cycle_values):
         print(f"Function {idx+1}: " + "-".join(formatted))
 
 print_cycle_values(optimal_cycle_values)
-print_cycle_values(optimal_cycle_values_rnd)
 
 print('--------')
 print(f'Time elapsed: {time.time() - start}secs')

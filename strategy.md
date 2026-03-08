@@ -33,3 +33,8 @@ Adjustments Log
 Adjustment Log
 - introduced function-specific acquisition hyperparameter tuning. 
 - dedicating this cycle to addressing the lack of use of acquisition hyperparameter usage to obtain proposed input values. I'm addressing this change as prescribed in a previous sentence. This is problematic; it means we have been using values with limited exploration search space. Hopefully this cycle should address that and give us a much better understanding of which regions are profitable and which regions are not worth exploring. After that, we can dive deeper into exploitation. 
+- Improve GP noise/normalisation robustness
+  - Issue: GP uses fixed tiny noise `alpha=1e-6` with no target normalisation. 
+  - Impact: Outputs have shown to span extreme scales. Surrogate model can become overconfident/ill-conditioned, distorting EI/UCB and exploration-exploitation balance.
+  - Proposed fix: Enable output normalisation, tune/increase `alpha` (or use a noise kernel) with bounded hyperparameters.
+  - Validation: verify best found traces before/after for all functions

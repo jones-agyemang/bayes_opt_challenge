@@ -133,5 +133,4 @@ DYN_CYCLE_PARAMETERS = {
     }
 }
 
-
 def get_cycle_parameters(): return {**BASE_CYCLE_PARAMETERS, **DYN_CYCLE_PARAMETERS}
