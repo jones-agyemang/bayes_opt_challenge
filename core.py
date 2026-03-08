@@ -15,6 +15,8 @@ DEFAULT_LEN_SCALE = 0.3
 DEFAULT_ACQUISITION_STRATEGY = "ucb"
 DEFAULT_XI = 0.01
 DEFAULT_KAPPA = 2
+DEFAULT_NOISE_FLOOR = 1e-6
+DEFAULT_NOISE_SCALE = 1e-4
 
 # Resolve paths relative to this file so the script works from any CWD
 BASE_DIR = Path(__file__).resolve().parent
@@ -76,8 +78,19 @@ def acq_objective(x, gp, acq_dict, y_best):
     return float(-acquisition_value[0])
 
 def fit_gp(X, y):
-    kernel = ConstantKernel(1.0) * RBF(length_scale=DEFAULT_LEN_SCALE)
-    gp = GaussianProcessRegressor(kernel=kernel, alpha=1e-6, n_restarts_optimizer=10)
+    kernel = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(
+        length_scale=DEFAULT_LEN_SCALE,
+        length_scale_bounds=(1e-3, 1e3)
+    )
+    y = np.asarray(y, dtype=float).ravel()
+    y_var = float(np.var(y))
+    alpha = max(DEFAULT_NOISE_FLOOR, DEFAULT_NOISE_SCALE * y_var)
+    gp = GaussianProcessRegressor(
+        kernel=kernel,
+        alpha=alpha,
+        n_restarts_optimizer=10,
+        normalize_y=True
+    )
     gp.fit(X, y)
     return gp
 
@@ -126,4 +139,3 @@ def propose_next_rnd_sampling(
 
     best_idx = int(np.argmax(acq))
     return X, Y, X_cand[best_idx]
-
