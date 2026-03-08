@@ -159,7 +159,7 @@ def bayesian_loop():
 
         # Run acquisition based on proposer type
         cycle_cfg = cycle_parameters.get(cycle, {})
-        function_cfg = cycle_cfg.get(f"function_{func_id}", {})
+        function_cfg = cycle_cfg.get(f"function_{func_id}", cycle_cfg)
         acquisition_cfg = function_cfg.get('acquisition', {})
         acq_stra = acquisition_cfg.get('strategy', '')
         print(f'Acqusition strategy: {acq_stra}')
