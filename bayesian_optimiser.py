@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, ConstantKernel
+from sklearn.gaussian_process.kernels import RBF, Matern, ConstantKernel
 
 import time
 
@@ -11,6 +11,8 @@ from utils.loader import (
     load_input_data,
     load_output_data
 )
+
+DEFAULT_LEN_SCALE_BOUND = (1e-3, 1e3)
 
 from utils.cycle_parameters import ( get_cycle_parameters )
 
@@ -64,12 +66,30 @@ def bayesian_loop():
             signed_log_plot(func_id, Y)
         assert X.shape[0], Y.shape
         
-        # train GP with prior data
-        gp = fit_gp(X, Y)
-
-        # Run acquisition based on proposer type
+        # Extract Cycle Parameters
         cycle_cfg = cycle_parameters.get(cycle, {})
         function_cfg = cycle_cfg.get(f"function_{func_id}", {})
+        
+        kernel_cfg              = function_cfg.get('kernel')
+        kernel_type             = kernel_cfg.get('type')
+        kernel_len_scale        = kernel_cfg.get('length_scale')
+        kernel_len_scale_bounds = kernel_cfg.get('length_scale_bounds')
+        kernel_nu               = kernel_cfg.get('nu')
+
+        constant_kernel = ConstantKernel(1.0, DEFAULT_LEN_SCALE_BOUND)
+
+        match kernel_type:
+            case 'Matern':
+                kernel = constant_kernel * Matern(kernel_len_scale, kernel_len_scale_bounds, kernel_nu)
+            case 'RBF':
+                kernel = constant_kernel * RBF(kernel_len_scale, kernel_len_scale_bounds)
+            case _:
+                raise ValueError(f'Invalid kernel type: {kernel_type}')
+
+        # train GP with prior data
+        gp = fit_gp(X, Y, kernel)
+
+        # Run acquisition based on proposer type
         acquisition_cfg = function_cfg.get('acquisition', {})
         proposer = function_cfg.get("proposer", DEFAULT_PROPOSER)
         print(f"Proposer: {proposer}")

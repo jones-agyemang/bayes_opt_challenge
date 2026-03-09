@@ -7,6 +7,8 @@ from scipy.stats import norm
 from pathlib import Path
 import time
 
+from utils.cycle_parameters import ( get_cycle_parameters )
+
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -48,7 +50,6 @@ def expected_improvement(mu, sigma, y_best, xi):
         ei[sigma == 0.0] = 0.0
     return ei
 
-
 def evaluate_acquisition(x, gp, acq_dict, y_best):
     if not isinstance(acq_dict, dict):
         raise TypeError("`acq_dict` must be a dict containing `strategy` and `params`.")
@@ -84,7 +85,6 @@ def evaluate_acquisition(x, gp, acq_dict, y_best):
         case _:
             raise ValueError(f"Unsupported acquisition strategy: {strategy}")
 
-
 def acq_objective(x, gp, acq_dict, y_best):
     # `minimize` requires a scalar objective.
     acquisition_value = evaluate_acquisition(x, gp, acq_dict, y_best)
@@ -92,11 +92,7 @@ def acq_objective(x, gp, acq_dict, y_best):
     # We minimise, so return the negative acquisition
     return float(-acquisition_value[0])
 
-def fit_gp(X, y):
-    kernel = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(
-        length_scale=DEFAULT_LEN_SCALE,
-        length_scale_bounds=(1e-3, 1e3)
-    )
+def fit_gp(X, y, kernel):
     y = np.asarray(y, dtype=float).ravel()
     y_var = float(np.var(y))
     alpha = max(DEFAULT_NOISE_FLOOR, DEFAULT_NOISE_SCALE * y_var)
