@@ -38,3 +38,4 @@ Adjustment Log
   - Impact: Outputs have shown to span extreme scales. Surrogate model can become overconfident/ill-conditioned, distorting EI/UCB and exploration-exploitation balance.
   - Proposed fix: Enable output normalisation, tune/increase `alpha` (or use a noise kernel) with bounded hyperparameters.
   - Validation: verify best found traces before/after for all functions
+- 

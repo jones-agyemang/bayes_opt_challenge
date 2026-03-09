@@ -25,10 +25,10 @@ Here the hyperparameters in this codebase, with typical values and tuning priori
 3. GP kernel length-scale behavior (init + bounds)
 
 Tune priority (1-5) is a ranking of expected impact vs effort/risk; with 1 being less important and 5 being super-important.
-|Priority order|Rationale|Description|
+|Priority order|Importance|Description|
 |-:|-|-|
-|5 |tune first| High leverage on BO performance; likely to change results materially.|
-|4 |tune early| Important, but slightly less universal/urgent than 5.|
-|3 |tune when time permits| Moderate gains or more context-dependent.|
-|2 |lower priority| Mostly refinement, robustness, or runtime tradeoff.|
-|1 |rarely worth tuning now| Minimal expected benefit for your current setup.|
+|5 |**Critical**| High leverage on BO performance; likely to change results materially.|
+|4 |**High**| Important, but slightly less universal/urgent than 5.|
+|3 |**Medium**| Moderate gains or more context-dependent.|
+|2 |**Low**| Mostly refinement, robustness, or runtime tradeoff.|
+|1 |**Ignore**| Minimal expected benefit for your current setup.|
