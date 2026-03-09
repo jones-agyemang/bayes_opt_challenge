@@ -10,7 +10,7 @@ def test_rejects_invalid_kernel_type():
         KernelConfig(kernel_type='invalid_type')
 
 def test_sets_default_values():
-    kernel_cfg = KernelConfig(kernel_type='Matern', mu=3.4)
+    kernel_cfg = KernelConfig(kernel_type='Matern', nu=3.4)
     assert kernel_cfg.length_scale, DEFAULT_LEN_SCALE
     assert kernel_cfg.length_scale_bounds, DEFAULT_LEN_SCALE_BOUND
 

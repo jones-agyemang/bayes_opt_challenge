@@ -7,22 +7,20 @@ import time
 import warnings
 warnings.filterwarnings('ignore')
 
+from kernel_config import KernelConfig
+from utils.cycle_parameters import ( get_cycle_parameters )
+from log_eval_plts import (signed_log_plot)
 from utils.loader import (
     load_input_data,
     load_output_data
 )
-
-DEFAULT_LEN_SCALE_BOUND = (1e-3, 1e3)
-
-from utils.cycle_parameters import ( get_cycle_parameters )
-
 from core import (
     fit_gp,
     propose_next,
     propose_next_rnd_sampling
 )
 
-from log_eval_plts import (signed_log_plot)
+DEFAULT_LEN_SCALE_BOUND = (1e-3, 1e3)
 
 # CONSTANTS
 DEFAULT_LEN_SCALE = 0.3
@@ -76,13 +74,21 @@ def bayesian_loop():
         kernel_len_scale_bounds = kernel_cfg.get('length_scale_bounds')
         kernel_nu               = kernel_cfg.get('nu')
 
+        kernel_cfg = KernelConfig(
+            kernel_type=kernel_type,
+            length_scale=kernel_len_scale,
+            length_scale_bounds=kernel_len_scale_bounds,
+            nu=kernel_nu
+        )
+
         constant_kernel = ConstantKernel(1.0, DEFAULT_LEN_SCALE_BOUND)
+        args = [kernel_cfg.length_scale, kernel_cfg.length_scale_bounds]
 
         match kernel_type:
             case 'Matern':
-                kernel = constant_kernel * Matern(kernel_len_scale, kernel_len_scale_bounds, kernel_nu)
+                kernel = constant_kernel * Matern(*args, kernel_cfg.nu)
             case 'RBF':
-                kernel = constant_kernel * RBF(kernel_len_scale, kernel_len_scale_bounds)
+                kernel = constant_kernel * RBF(*args)
             case _:
                 raise ValueError(f'Invalid kernel type: {kernel_type}')
 
