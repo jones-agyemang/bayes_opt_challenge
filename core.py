@@ -92,14 +92,14 @@ def acq_objective(x, gp, acq_dict, y_best):
     # We minimise, so return the negative acquisition
     return float(-acquisition_value[0])
 
-def fit_gp(X, y, kernel):
+def fit_gp(X, y, kernel, n_restarts_optimizer=10):
     y = np.asarray(y, dtype=float).ravel()
     y_var = float(np.var(y))
     alpha = max(DEFAULT_NOISE_FLOOR, DEFAULT_NOISE_SCALE * y_var)
     gp = GaussianProcessRegressor(
         kernel=kernel,
         alpha=alpha,
-        n_restarts_optimizer=10,
+        n_restarts_optimizer=n_restarts_optimizer,
         normalize_y=True
     )
     gp.fit(X, y)

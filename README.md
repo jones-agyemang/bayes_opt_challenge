@@ -1,35 +1,58 @@
 # Project Overview
-This is a black-box(BBO) capstone project to maximise the global optimum for eight functions whose objective functions are unknown. This is an optimisation challenge. The process of discovering, unearthing, searching etc. often begins with exploring unknowns until we either prove or disprove the presence of the our object of interest. This challenge has likewise objectives; iteratively enquire until we “strike gold”. This technique is used for minerals prospecting, oil field discovery, hyperparameter optimisation and tuning, detecting radioactivity levels etc. The high level idea is: without an explicit objective function or a direct formula which underlies our model can we optimise this function? 
+This project tackles a black-box optimisation challenge with eight unknown objective functions. Each function accepts continuous inputs in `[0, 1]^d` and returns a scalar score. The goal is to propose one strong next point per function under a tight evaluation budget.
 
-In this project, I will be using surrogate models to approximate the objective function and guide the optimisation process. The goal is to maximise all eight functions based on the outputs we observe, even though the underlying function remains opaque throughout the optimisation cycles. 
+The primary strategy is now a HEBO-style `q = 1` optimiser inspired by the Huawei Noah's Ark NeurIPS 2020 winning solution. The baseline GP proposer remains in the codebase for comparison, but HEBO is the default.
 
-Using a mix of exploration and exploitation, I’ll carefully blend these two strategies to discover new search spaces and dig deeper into promising, high yield areas. Bayesian optimisation will be the primary tool of choice. Acquisition functions will be utilised to handle uncertainty and make informed decisions on where to evaluate the next function.
+# Current Strategy
+The main proposal pipeline combines four ideas that were missing from the earlier single-acquisition GP setup:
 
-# Inputs and Outputs
-The model receives continuous, random variables(6 decimal places) as input for all eight functions of varying dimensions and returns a scalar, continuous variable. Input parameters are within the range of 0 and 1. 
+1. Output power transforms to reduce skew and heteroscedasticity.
+2. Kumaraswamy input warping to handle non-stationary behaviour over `[0, 1]^d`.
+3. An additive `Linear + Matern32` Gaussian process surrogate.
+4. A MACE proposer that searches a Pareto front over `logEI`, `PI`, and `UCB` with NSGA-II, then picks one balanced candidate.
 
-Here’s an example of the expected input. 
+This matters because the challenge data are not well behaved. The logged outputs already vary from near-zero scales to values above `1000`, and several functions appear noisy or non-stationary. A vanilla GP with a single acquisition can become overconfident and collapse onto brittle local optima.
 
-|**Function**|Dimensions|Typical input values|
-|:-|:-|:-|
-|1|2| 0.516192-0.628562|
-|2|2| 0.819027-0.999999|
-|3|3| 0.999999-0.999999-0.999999|
-|4|3| 0.411215-0.391663-0.334151-0.430246|
-|5|3| 0.507329-0.771394-0.529443-0.567015|
-|6|5| 0.000001-0.000001-0.000001-0.999999-0.000001|
-|7|6| 0.045149-0.302222-0.352880-0.146446-0.345691-0.763203|
-|8|8| 0.000001-0.011975-0.157238-0.000001-0.999999-0.464723-0.000001-0.780942|
+# Proposal Modes
+The configuration surface is split into two paths:
 
-These values are submitted to the unknown, black box function which returns scalar values as output for each of the functions. 
+- `proposal.mode = "hebo"`: default path using warped GP + NSGA-II MACE.
+- `proposal.mode = "baseline"`: previous single-acquisition GP path using either gradient search or random candidate sampling.
 
-# Challenge Objectives
-Maximisation is the goal for all eight functions. 
+The default configuration is defined in `utils/cycle_parameters.py` and is shared across all eight functions. Per-function overrides are still possible if you want ablations or comparisons.
 
-# Technical Approach
-The first three cycles for generating the next input variables for each of the eight functions utilised three distinct variations of the same acquisition strategy, Upper Continuous Bounds(UCB). Future iterations are expected to utilise Expected Improvements(EI) as the acquisition strategy to exploit potential high yield areas. This is a Bayesian, sequential approach that uses prior results to improve input suggestions and minimise the effect of false positives (low success data points). There’s no early stopping mechanism. The challenge ends after twelve sequences of the Bayesian optimisation cycle.
+# Running
+Install dependencies:
 
-The first cycle’s input were randomly generated values. These random variables were constrained to be within the exclusive bounds of 0 to 1. Gaussian Processes (GP) was used as a surrogate model. This marked an early change of strategy from randomly generated data as this strategy did not intelligently shape the next set of input data. In addition, I pivoted early from guessing subsequent input data as surrogate models can help manage complexity and provide a more structured, repeatable approach to evaluating the true objective function. I used GPs to build the surrogate model as they provide excellent statistical properties and uncertainty estimates. This is in contrast to other potential surrogate function candidates such as regression trees etc. Uncertainty estimates help to refine strategies for exploration or exploitation. 
-Bayesian techniques, which GPs are, helps me to handle uncertainty in the model predictions as I update beliefs with new data. SVM models may be implemented when we can distinctly decide on the classes of interest. In this early stages, there isn’t enough data to delineate and categorise classes with labels with helpful labels i.e. high and low performance regions. 
+```bash
+python3 -m pip install -r requirements.txt
+```
 
-The early stages of the process is dedicated to exploring unknown regions. The strategy will be adapted new cycles expose more information to help drive exploitation of potentially, profitable regions. 
+Generate one proposal per function for a cycle:
+
+```bash
+python3 bayesian_optimiser.py --cycle 7
+python3 -u bayesian_optimiser.py --cycle 7 --population-size 12 --generations 4 --warp-multistarts 1 --warp-maxiter 5 --gp-restarts 0
+```
+
+Run the replay sanity comparison on a shared candidate pool:
+
+```bash
+python3 replay_sanity.py --cycle 7 --pool-size 5000
+```
+
+Run tests:
+
+```bash
+pytest -q
+```
+
+# Research Basis
+- Rasmussen and Williams (2006): GP regression and uncertainty-aware surrogate modelling.
+- Huawei Noah's Ark Lab, NeurIPS 2020 BBO winner: warped GP surrogate, stochastic mean, and multi-objective acquisition search.
+
+The Huawei paper directly motivated the current design choices:
+- power transformation for heteroscedastic outputs,
+- input warping for non-stationary functions,
+- `Linear + Matern32` kernel for mixed global/local structure,
+- MACE over multiple acquisitions instead of committing to one acquisition globally.

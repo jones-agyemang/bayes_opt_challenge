@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../code-katas"
+		},
+		{
+			"path": "../../../fraud-ml"
+		},
+		{
+			"path": "../../../memoly-ui"
+		},
+		{
+			"path": "../../../memoly-api"
+		},
+		{
+			"path": "../../bayesian_optimization_challenge-md"
+		},
+		{
+			"path": "../../kaggle"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}

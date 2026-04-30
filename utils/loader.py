@@ -4,10 +4,11 @@ from pathlib import Path
 # Resolve paths relative to this file so the script works from any CWD
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROCESSED_DATA_DIR = BASE_DIR / "processed_data"
+INITIAL_DATA_DIR = BASE_DIR / "initial_data"
 
 NUMBER_OF_FUNCTIONS = 8
 
-load_input = lambda x, type: np.load(f'./initial_data/function_{x}/initial_{type}.npy')
+load_input = lambda x, type: np.load(INITIAL_DATA_DIR / f"function_{x}" / f"initial_{type}.npy")
 
 """
 return 
@@ -54,7 +55,7 @@ def load_output_data(func_id):
 def load_processed_input_data(path):
     fluff = ['[', 'array(', ' ', ']', ')']
 
-    file = open(path).read()
+    file = Path(path).read_text()
     
     # Strictly returns the last array only
     split_file_data = file.split(']\n[')
@@ -72,7 +73,7 @@ def load_processed_input_data(path):
 def load_processed_output_data(path):
     fluff = ['[', 'np.float64(', ')', ',', ']']
 
-    file = open(path).read()
+    file = Path(path).read_text()
     raw_contents = file.split()
 
     results = []
