@@ -328,6 +328,133 @@ CYCLE_FUNCTION_OVERRIDES = {
                 "min_distance": 5e-3,
             },
         ),
+    },
+    10: {
+        1: build_hebo_override(
+            surrogate_updates={
+                "kernel": {"type": "linear_plus_matern52", "length_scale": 0.35},
+                "stochastic_mean_xi": 0.75,
+                "warp_multistarts": 6,
+                "warp_maxiter": 40,
+                "gp_restarts": 12,
+            },
+            proposal_updates={
+                "population_size": 128,
+                "generations": 80,
+                "kappa": 3.5,
+                "xi": 0.05,
+            },
+        ),
+        2: build_hebo_override(
+            surrogate_updates={
+                "kernel": {"type": "matern32", "length_scale": 0.2},
+                "stochastic_mean_xi": 1.5,
+                "warp_multistarts": 6,
+                "warp_maxiter": 50,
+                "gp_restarts": 15,
+            },
+            proposal_updates={
+                "population_size": 160,
+                "generations": 90,
+                "kappa": 6.0,
+                "xi": 0.05,
+                "min_distance": 5e-3,
+            },
+        ),
+        3: build_hebo_override(
+            surrogate_updates={
+                "kernel": {"type": "linear_plus_matern32", "length_scale": 0.15},
+                "stochastic_mean_xi": 1.5,
+                "warp_multistarts": 8,
+                "warp_maxiter": 50,
+                "gp_restarts": 15,
+            },
+            proposal_updates={
+                "population_size": 160,
+                "generations": 100,
+                "kappa": 5.0,
+                "xi": 0.75,
+                "min_distance": 5e-3,
+            },
+        ),
+        4: build_hebo_override(
+            surrogate_updates={
+                "kernel": {"type": "matern52", "length_scale": 0.5},
+                "stochastic_mean_xi": 0.5,
+                "warp_multistarts": 4,
+                "warp_maxiter": 30,
+                "gp_restarts": 10,
+            },
+            proposal_updates={
+                "population_size": 96,
+                "generations": 70,
+                "kappa": 5.5,
+                "xi": 1.0,
+            },
+        ),
+        5: build_hebo_override(
+            surrogate_updates={
+                "kernel": {"type": "linear_plus_matern52", "length_scale": 0.6},
+                "stochastic_mean_xi": 0.75,
+                "warp_multistarts": 6,
+                "warp_maxiter": 40,
+                "gp_restarts": 12,
+            },
+            proposal_updates={
+                "population_size": 128,
+                "generations": 80,
+                "kappa": 2.75,
+                "xi": 0.5,
+            },
+        ),
+        6: build_hebo_override(
+            surrogate_updates={
+                "kernel": {"type": "matern32", "length_scale": 0.12},
+                "stochastic_mean_xi": 1.25,
+                "warp_multistarts": 6,
+                "warp_maxiter": 50,
+                "gp_restarts": 15,
+            },
+            proposal_updates={
+                "population_size": 260,
+                "generations": 190,
+                "kappa": 5.0,
+                "xi": 1.09,
+                "min_distance": 5e-3,
+            },
+        ),
+        7: build_hebo_override(
+            surrogate_updates={
+                "kernel": {"type": "linear_plus_matern32", "length_scale": 0.25},
+                "stochastic_mean_xi": 1.25,
+                "warp_multistarts": 8,
+                "warp_maxiter": 50,
+                "gp_restarts": 15,
+            },
+            proposal_updates={
+                "population_size": 500,
+                "generations": 300,
+                "kappa": 7.0,
+                "xi": 1.75,
+                "min_distance": 1e-2,
+            },
+        ),
+        8: build_hebo_override(
+            surrogate_updates={
+                "kernel": {"type": "linear_plus_matern52", "length_scale": 0.4},
+                "stochastic_mean_xi": 1.0,
+                "warp_multistarts": 6,
+                "warp_maxiter": 40,
+                "gp_restarts": 12,
+            },
+            proposal_updates={
+                "population_size": 1024,
+                "generations": 200,
+                "kappa": 3.5,
+                "xi": 0.05,
+                "min_distance": 5e-3,
+            },
+        ),
     }
 }
 
